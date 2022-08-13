@@ -1,0 +1,8 @@
+
+spring:
+  application:
+    name: core-service
+  main:
+    allow-bean-definition-overriding: true
+
+

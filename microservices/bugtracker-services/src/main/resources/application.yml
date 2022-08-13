@@ -1,0 +1,8 @@
+spring:
+
+  application:
+    name: bugtracker-service
+  messages:
+    encoding: UTF-8
+    basename: i18n/messages
+
