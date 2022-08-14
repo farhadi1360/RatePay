@@ -3,10 +3,10 @@ package com.ratepay.client.bugtracker.entities;
  * @author Mustafa Farhadi
  * @email  farhadi.kam@gmail.com
  */
-import com.ratepay.client.bugtracker.enume.TicketPriority;
 import com.ratepay.core.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -15,11 +15,8 @@ import java.sql.Timestamp;
 @Table(name = "tickets")
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class Ticket extends BaseEntity<Long> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
@@ -40,4 +37,15 @@ public class Ticket extends BaseEntity<Long> {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User developer;
+    public Ticket(String title, String description, Timestamp timestamp, User author, TicketType type,
+                  TicketPriority priority, Project project){
+        this.title = title;
+        this.description = description;
+        this.timestamp = timestamp;
+        this.author = author;
+        this.type = type;
+        this.priority = priority;
+        this.project = project;
+        this.developer = null;
+    }
 }

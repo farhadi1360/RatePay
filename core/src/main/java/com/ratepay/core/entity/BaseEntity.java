@@ -46,10 +46,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     @Column(columnDefinition = "integer default 0")
     protected int version;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    protected Long id;
 
 
-    public abstract ID getId();
-    public abstract void setId(ID id);
 
 
 }

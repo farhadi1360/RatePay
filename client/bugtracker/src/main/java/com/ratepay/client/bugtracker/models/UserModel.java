@@ -28,4 +28,5 @@ public class UserModel extends BaseModel {
     Set<ProjectModel> projects;
     Set<ProjectModel> projectsWorkingOn;
     Set<TicketModel> ticketsWorkingOn;
+
 }

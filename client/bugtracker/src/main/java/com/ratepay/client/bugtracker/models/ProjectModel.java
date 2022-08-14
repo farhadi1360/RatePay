@@ -22,4 +22,8 @@ public class ProjectModel extends BaseModel {
     Set<UserModel> developers;
     Set<TicketModel> tickets;
 
+public ProjectModel(String projectName,UserModel projectManager) {
+    this.name = projectName;
+    this.projectManager = projectManager;
+}
 }
