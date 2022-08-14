@@ -7,6 +7,7 @@ import com.ratepay.bugtracker.repository.UserRepository;
 import com.ratepay.bugtracker.services.RoleService;
 import com.ratepay.client.bugtracker.entities.User;
 import com.ratepay.client.bugtracker.enume.RoleName;
+import com.ratepay.client.bugtracker.mapper.RoleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ public class AuthService implements UserDetailsService {
     private final JwtProvider jwtProvider;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleMapper roleMapper;
 
     @Override
     public User loadUserByUsername(String username){
@@ -45,7 +47,7 @@ public class AuthService implements UserDetailsService {
     public User register(User user){
         checkUsernameAvailability(user.getUsername());
         checkEmailAvailability(user.getEmail());
-        user.getRoles().add(roleService.findByRoleName(RoleName.ROLE_USER));
+        user.getRoles().add(roleMapper.toEntity(roleService.findByRoleName(RoleName.ROLE_USER)));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return user;

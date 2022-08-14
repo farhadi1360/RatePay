@@ -1,21 +1,13 @@
 package com.ratepay.bugtracker.services;
-
-import com.ratepay.bugtracker.exceptions.custom.EntityNotFoundException;
-import com.ratepay.bugtracker.repository.RoleRepository;
-import com.ratepay.client.bugtracker.entities.Role;
+/**
+ * Created by Mostafa.Farhadi Email : farhadi.kam@gmail.com.
+ */
 import com.ratepay.client.bugtracker.enume.RoleName;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.ratepay.client.bugtracker.models.RoleModel;
+import com.ratepay.core.service.MainServiceSQLMode;
 
-@Service
-@RequiredArgsConstructor
-public class RoleService {
-    private final RoleRepository roleRepository;
+import java.io.Serializable;
 
-    public Role findByRoleName(RoleName roleName){
-        return roleRepository.findByRole(roleName)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Role " + roleName.name() + " doesn't exist")
-                );
-    }
+public interface RoleService <M, ID extends Serializable> extends MainServiceSQLMode<M, ID> {
+    RoleModel findByRoleName(RoleName roleName);
 }

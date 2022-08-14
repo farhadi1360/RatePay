@@ -1,5 +1,8 @@
-package com.ratepay.bugtracker.api;
 
+package com.ratepay.bugtracker.api;
+/**
+ * Created by Mostafa.Farhadi Email : farhadi.kam@gmail.com.
+ */
 import com.ratepay.bugtracker.security.AuthService;
 import com.ratepay.client.bugtracker.entities.User;
 import com.ratepay.client.bugtracker.models.LoginRequest;
@@ -15,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthAPI {
     private final AuthService authService;
 
     @PostMapping("/login")
