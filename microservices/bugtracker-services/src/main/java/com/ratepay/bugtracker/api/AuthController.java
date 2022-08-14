@@ -4,7 +4,7 @@ import com.ratepay.bugtracker.security.AuthService;
 import com.ratepay.client.bugtracker.entities.User;
 import com.ratepay.client.bugtracker.models.LoginRequest;
 import com.ratepay.client.bugtracker.models.LoginResponse;
-import com.ratepay.client.bugtracker.models.UserModel;
+import com.ratepay.client.bugtracker.models.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

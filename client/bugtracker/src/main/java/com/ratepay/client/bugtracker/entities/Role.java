@@ -7,12 +7,15 @@ import com.ratepay.client.bugtracker.enume.RoleName;
 import com.ratepay.core.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 public class Role extends BaseEntity<Long> {
     @Id
@@ -22,4 +25,8 @@ public class Role extends BaseEntity<Long> {
     @Enumerated(value = EnumType.STRING)
     private RoleName role;
 
+    @Override
+    public String getSelectTitle() {
+        return role.name();
+    }
 }

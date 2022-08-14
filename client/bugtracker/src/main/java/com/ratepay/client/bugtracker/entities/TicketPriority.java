@@ -2,22 +2,26 @@ package com.ratepay.client.bugtracker.entities;
 
 import com.ratepay.client.bugtracker.enume.TicketPriorityName;
 import com.ratepay.core.entity.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "ticket_priorities")
 @javax.persistence.Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class TicketPriority extends BaseEntity {
+@Getter
+@Setter
+public class TicketPriority extends BaseEntity<Long> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
     @Enumerated(value = EnumType.STRING)
     private TicketPriorityName priority;
+
+    @Override
+    public String getSelectTitle() {
+        return priority.name();
+    }
 }

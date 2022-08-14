@@ -4,19 +4,21 @@ package com.ratepay.client.bugtracker.entities;
  * @email  farhadi.kam@gmail.com
  */
 import com.ratepay.core.entity.BaseEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "tickets")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Ticket extends BaseEntity<Long> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
@@ -47,5 +49,10 @@ public class Ticket extends BaseEntity<Long> {
         this.priority = priority;
         this.project = project;
         this.developer = null;
+    }
+
+    @Override
+    public String getSelectTitle() {
+        return title;
     }
 }

@@ -50,6 +50,15 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
 
+    @Transient
+    @JsonIgnore
+    private String selectTitle;
+
+    public abstract ID getId();
+    public abstract void setId(ID id);
+
+    public abstract String getSelectTitle();
+
 
 
 

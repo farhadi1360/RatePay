@@ -1,7 +1,6 @@
 spring:
 
   application:
-    name: bugtracker-service
   messages:
     encoding: UTF-8
     basename: i18n/messages
@@ -30,9 +29,9 @@ spring:
 
 
 
-#  sql:
-#    init:
-#      data-locations: classpath*:db.migration/V2__init.sql
+  sql:
+    init:
+      data-locations: classpath*:import.sql
 app:
   jwt:
     secret: F$gQb+D$wjV&EsV}(;!^{|[GM^9Y6'33n'FG^-!tF&?Z[P{Wl{~m*`wp7XSd>Fa

@@ -1,12 +1,11 @@
 package com.ratepay.client.bugtracker.entities;
 /**
  * @author Mustafa Farhadi
- * @email  farhadi.kam@gmail.com
+ * @email farhadi.kam@gmail.com
  */
+
 import com.ratepay.core.entity.BaseEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
@@ -15,11 +14,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "projects")
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Project extends BaseEntity<Long> {
-    public Project(String name,User projectManager) {
+    public Project(String name, User projectManager) {
         this.name = name;
         this.projectManager = projectManager;
     }
@@ -44,7 +44,7 @@ public class Project extends BaseEntity<Long> {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
     private Set<Ticket> tickets = new HashSet<>();
 
-       private String generateCode() {
+    private String generateCode() {
         int length = 6;
         return RandomStringUtils.random(length, true, true);
     }
@@ -57,11 +57,16 @@ public class Project extends BaseEntity<Long> {
         developers.remove(developer);
     }
 
-    public void addTicket(Ticket ticket){
+    public void addTicket(Ticket ticket) {
         tickets.add(ticket);
     }
 
-    public void removeTicket(Ticket ticket){
+    public void removeTicket(Ticket ticket) {
         tickets.remove(ticket);
+    }
+
+    @Override
+    public String getSelectTitle() {
+        return name;
     }
 }

@@ -1,4 +1,4 @@
-package com.ratepay.bugtracker.api;
+package com.ratepay.client.bugtracker.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

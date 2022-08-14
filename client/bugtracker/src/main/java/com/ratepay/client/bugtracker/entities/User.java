@@ -7,23 +7,29 @@ package com.ratepay.client.bugtracker.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ratepay.core.entity.BaseEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Table(name = "users")
-@javax.persistence.Entity
+@Entity
 @NoArgsConstructor
-@AllArgsConstructor
-public class User extends BaseEntity implements UserDetails {
-
+@Getter
+@Setter
+public class User extends BaseEntity<Long> implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(nullable = false, unique = true)
     private String username;
     private String password;
@@ -167,5 +173,11 @@ public class User extends BaseEntity implements UserDetails {
 
     public void removeTicketsWorkingOn(Ticket ticket) {
         this.ticketsWorkingOn.remove(ticket);
+    }
+
+
+    @Override
+    public String getSelectTitle() {
+        return username;
     }
 }

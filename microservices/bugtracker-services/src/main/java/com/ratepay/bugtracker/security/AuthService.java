@@ -7,8 +7,6 @@ import com.ratepay.bugtracker.repository.UserRepository;
 import com.ratepay.bugtracker.services.RoleService;
 import com.ratepay.client.bugtracker.entities.User;
 import com.ratepay.client.bugtracker.enume.RoleName;
-import com.ratepay.client.bugtracker.mapper.UserMapper;
-import com.ratepay.client.bugtracker.models.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
