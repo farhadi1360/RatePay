@@ -32,6 +32,13 @@ spring:
   sql:
     init:
       data-locations: classpath*:import.sql
+springdoc:
+  api-docs:
+    enabled: on
+  swagger-ui:
+    path: /ratepay-swagger-ui
+    operations-sorter: method
+
 app:
   jwt:
     secret: F$gQb+D$wjV&EsV}(;!^{|[GM^9Y6'33n'FG^-!tF&?Z[P{Wl{~m*`wp7XSd>Fa

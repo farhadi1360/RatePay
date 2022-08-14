@@ -1,5 +1,7 @@
 package com.ratepay.bugtracker.config;
-
+/**
+ * Created by Mostafa.Farhadi on 3/3/2019.
+ */
 
 import com.ratepay.bugtracker.utils.Constants;
 import com.ratepay.bugtracker.utils.SecurityUtils;

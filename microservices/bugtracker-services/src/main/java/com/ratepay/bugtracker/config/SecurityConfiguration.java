@@ -1,5 +1,7 @@
 package com.ratepay.bugtracker.config;
-
+/**
+ * Created by Mostafa.Farhadi on 3/3/2019.
+ */
 import com.ratepay.bugtracker.security.AuthService;
 import com.ratepay.bugtracker.security.JwtEntryPoint;
 import com.ratepay.bugtracker.security.JwtFilter;
@@ -44,6 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
                 .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
