@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/public/role")
+@RequestMapping("/api/v1/role")
 public class RoleAPI extends BaseRestSqlModeImpl<RoleModel, Long> {
 
     public RoleAPI(RoleService roleService) {
