@@ -26,5 +26,6 @@ public abstract class BaseModel<ID extends Serializable> implements Serializable
     protected Date modifiedDate;
     @JsonIgnore
     protected int version;
-
+    @JsonIgnore
+    private String selectTitle;
 }

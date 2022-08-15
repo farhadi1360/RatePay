@@ -9,7 +9,9 @@ import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,10 +42,10 @@ public class Project extends BaseEntity<Long> {
     @JoinTable(name = "project_developer",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> developers = new HashSet<>();
+    private List<User> developers = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
-    private Set<Ticket> tickets = new HashSet<>();
+    private List<Ticket> tickets = new ArrayList<>();
 
     private String generateCode() {
         int length = 6;

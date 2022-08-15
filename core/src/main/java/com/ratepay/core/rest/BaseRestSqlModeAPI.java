@@ -20,7 +20,7 @@ public interface BaseRestSqlModeAPI<M, ID extends Serializable> {
     BaseResponseDTO<M> update(@RequestBody @Valid M model)throws GeneralException;
 
     @GetMapping(value = {"/get-by-id"})
-    BaseResponseDTO<M> findByUniqueId(@RequestParam ID uniqueId) throws GeneralException;
+    BaseResponseDTO<M> findByUniqueId(@RequestParam("id")  ID uniqueId) throws GeneralException;
 
 
     @PostMapping(value = {"/list-paging"})
