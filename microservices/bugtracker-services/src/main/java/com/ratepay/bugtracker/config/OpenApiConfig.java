@@ -25,7 +25,7 @@ public class OpenApiConfig {
                                 .flows(new OAuthFlows()
 
                                         .password(new OAuthFlow()
-                                                .tokenUrl("http://localhost:7002" + "/oauth/token")
+                                                .tokenUrl("http://localhost:2000" + "/api/v1/auth")
 
                                         )
                                 )

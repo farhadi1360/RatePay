@@ -46,10 +46,6 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     @Column(columnDefinition = "integer default 0")
     protected int version;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
-
     @Transient
     @JsonIgnore
     private String selectTitle;

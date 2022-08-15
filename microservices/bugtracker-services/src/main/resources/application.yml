@@ -32,11 +32,13 @@ spring:
   sql:
     init:
       data-locations: classpath*:import.sql
+      continue-on-error: true
+
 springdoc:
   api-docs:
     enabled: on
   swagger-ui:
-    path: /ratepay-swagger-ui
+#    path: /ratepay-swagger-ui
     operations-sorter: method
 
 app:
