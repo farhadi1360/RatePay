@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null && jwtProvider.isValid(token)) {
                 String username = jwtProvider.extractUsername(token);
-                UserDetails user = authService.loadUserByUsername(username);
+                UserDetails user = authServiceImpl.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));

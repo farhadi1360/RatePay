@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum CoreExceptionTypes {
+
     TIMEOUT("1012", 408),
     NOT_FOUND_EXCEPTION("1011", 404),
     UNKNOWN_INTERNAL_ERROR("1000",422)

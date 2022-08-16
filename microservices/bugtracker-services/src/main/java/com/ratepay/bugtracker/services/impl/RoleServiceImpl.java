@@ -30,9 +30,4 @@ public class RoleServiceImpl extends MainServiceSQLModeImpl<RoleModel, Role,Long
                         () -> new EntityNotFoundException("Role " + roleName.name() + " doesn't exist")
                 ));
     }
-    @Override
-    public Predicate queryBuilder(RoleModel filter) {
-        return null;
-
-    }
 }

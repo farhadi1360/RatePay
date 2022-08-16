@@ -43,47 +43,6 @@ public abstract class MainServiceSQLModeImpl <M, E extends BaseEntity<ID>, ID ex
         this.repository = repository;
     }
 
-    public abstract Predicate queryBuilder(M filter);
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageDto findAllTable(M filter, Pageable pageable) {
-        Predicate predicate = queryBuilder(filter);
-        Page<E> page = repository.findAll(predicate, pageable);
-        return new PageDto(page.getTotalElements(), repository.count(predicate), mapper.toModel(page.getContent()));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageDto findAllSelect(M filter, Pageable pageable) {
-        Predicate predicate = queryBuilder(filter);
-        Page<E> page = repository.findAll(predicate, pageable);
-        return new PageDto(page.getTotalElements(), repository.count(predicate), page.getContent().stream().
-                map(m -> new BaseDto(m.getId().toString(), m.getSelectTitle())));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<List<M>> findAll(M filter) throws BaseException {
-        Iterable<E> list = repository.findAll(queryBuilder(filter));
-        if (list!=null && list.iterator().hasNext()){
-            List<E> result = new ArrayList<>();
-            list.forEach(result::add);
-            return Optional.of(mapper.toModel(result));
-        }else{
-            logger.info("no any data was found ");
-            CreatingCoreException.Result ex = CreatingCoreException.getExceptionSpecification(CoreExceptionTypes.NOT_FOUND_EXCEPTION);
-            throw new GeneralException(ex.getCode(), ex.getMessage(), null, ex.getHttpStatusCode());
-        }
-
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Long countAll(M filter) {
-        return repository.count(queryBuilder(filter));
-    }
-
     @Override
     public Optional<M> findById(ID id) {
         Optional<E> result = repository.findById(id);
@@ -141,7 +100,7 @@ public abstract class MainServiceSQLModeImpl <M, E extends BaseEntity<ID>, ID ex
             out.getPage().setPageNumber(pageDto.getPageNumber());
             out.getPage().setPageSize(pageDto.getPageSize());
             out.getPage().setDirection(Sort.Direction.DESC);
-            out.getPage().setSortBy("create");
+            out.getPage().setSortBy("createdBy");
             out.getPage().setTotalElement(pages.getTotalElements());
             return Optional.of(out);
 

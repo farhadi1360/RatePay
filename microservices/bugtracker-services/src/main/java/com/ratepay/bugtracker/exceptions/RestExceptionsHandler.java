@@ -1,13 +1,22 @@
 package com.ratepay.bugtracker.exceptions;
 
+import com.nimbusds.oauth2.sdk.ErrorResponse;
 import com.ratepay.bugtracker.exceptions.custom.*;
+import com.ratepay.core.exception.GeneralException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -59,6 +68,20 @@ public class RestExceptionsHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleIllegalAction(
             IllegalActionException ex) {
         ApiException apiException = new ApiException(HttpStatus.FORBIDDEN);
+        apiException.setMessage(ex.getMessage());
+        return buildResponseEntity(apiException);
+    }
+    @ExceptionHandler(GeneralException.class)
+    public ResponseEntity<Object> handleGeneralException(
+            GeneralException ex) {
+        ApiException apiException = new ApiException(HttpStatus.PAYMENT_REQUIRED);
+        apiException.setMessage(ex.getMessage());
+        return buildResponseEntity(apiException);
+    }
+//
+
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        ApiException apiException = new ApiException(HttpStatus.BAD_REQUEST);
         apiException.setMessage(ex.getMessage());
         return buildResponseEntity(apiException);
     }

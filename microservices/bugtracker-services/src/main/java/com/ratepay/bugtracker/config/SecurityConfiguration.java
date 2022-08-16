@@ -2,7 +2,7 @@ package com.ratepay.bugtracker.config;
 /**
  * Created by Mostafa.Farhadi on 3/3/2019.
  */
-import com.ratepay.bugtracker.security.AuthService;
+import com.ratepay.bugtracker.security.AuthServiceImpl;
 import com.ratepay.bugtracker.security.JwtEntryPoint;
 import com.ratepay.bugtracker.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
     private final JwtEntryPoint jwtAuthEntryPoint;
     private final JwtFilter jwtFilter;
     private final PasswordEncoder passwordEncoder;
@@ -35,7 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(authService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(authServiceImpl).passwordEncoder(passwordEncoder);
     }
 
     @Override

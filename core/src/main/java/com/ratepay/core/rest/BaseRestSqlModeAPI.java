@@ -6,6 +6,7 @@ import com.ratepay.core.dto.BaseResponseDTO;
 import com.ratepay.core.dto.PageAbleDto;
 import com.ratepay.core.dto.PageDto;
 import com.ratepay.core.exception.GeneralException;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,10 +21,12 @@ public interface BaseRestSqlModeAPI<M, ID extends Serializable> {
     BaseResponseDTO<M> update(@RequestBody @Valid M model)throws GeneralException;
 
     @GetMapping(value = {"/get-by-id"})
+    @Secured("ROLE_USER")
     BaseResponseDTO<M> findByUniqueId(@RequestParam("id")  ID uniqueId) throws GeneralException;
 
 
     @PostMapping(value = {"/list-paging"})
+
     BaseResponseDTO<PageAbleDto<M>> getAllByPaging(@RequestBody PageDto dto) throws GeneralException;
 
     @GetMapping(value = {"/list"})
