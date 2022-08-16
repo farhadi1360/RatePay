@@ -81,7 +81,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         }
     }
 
-    public ResponseDto assignDeveloperToProject(Long projectId, Long developerId, Principal principal)throws EntityNotFoundException,GeneralException {
+    public ResponseDto assignDeveloperToProject(Long projectId, Long developerId, Principal principal)throws EntityNotFoundException,IllegalActionException {
         Optional<User> projectManager = userService.findUserByPrincipal(principal);
         if (projectManager.isPresent()) {
             Optional<Project> project = projectRepository.findById(projectId);
@@ -97,6 +97,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                             try {
                                 projectRepository.save(prj);
                                 userRepository.save(dev);
+                                log.info("{}, Project was successfully assigned to {}",prj.getName(),dev.getUsername());
                             }catch (Exception e){
                                 log.error(e.getMessage());
                                 throw new IllegalActionException("transaction does not doing");
@@ -127,7 +128,13 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                         throw new IllegalActionException("You can't remove yourself from your project!");
                     }
                     developer.get().removeProjectWorkingOn(prj);
-                    projectRepository.save(prj);
+                    try {
+                        projectRepository.save(prj);
+                        log.info("{}, as Developer  was successfully removed from  {} project",developer.get().getUsername(),prj.getName());
+                    }catch (Exception e){
+                        log.error(e.getMessage());
+                        throw new IllegalActionException("transaction does not doing");
+                    }
                 } else {
                     throw new EntityNotFoundException("Developer with id " + developerId + " not found!");
                 }

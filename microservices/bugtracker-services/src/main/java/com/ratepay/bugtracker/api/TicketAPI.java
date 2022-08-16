@@ -34,6 +34,20 @@ public class TicketAPI extends BaseRestSqlModeImpl<TicketModel, Long> {
         ResponseDto result = ticketService.createTicket(projectCode, ticketModel, principal);
         return BaseResponseDTO.ok(result);
     }
-
-
+    @PostMapping("/assign-developer/project/{projectId}")
+    @Secured("ROLE_DEVELOPER")
+    public BaseResponseDTO<?> assignTicketToDeveloper(@PathVariable Long ticketId,
+                                                     @RequestParam(name = "developerId") Long developerId,
+                                                     Principal principal){
+        ResponseDto result = ticketService.assignTicketToDeveloper(ticketId, developerId, principal);
+        return BaseResponseDTO.ok(result);
+    }
+    @PutMapping("/{ticketId}/remove")
+    @Secured("ROLE_MANAGER")
+    public BaseResponseDTO<?> removeDeveloperFromTicket(@PathVariable Long ticketId,
+                                                      @RequestParam(name = "developerId") Long developerId,
+                                                      Principal principal){
+        ResponseDto result = ticketService.removeDeveloperFromTicket(ticketId, developerId, principal);
+        return BaseResponseDTO.ok(result);
+    }
 }
