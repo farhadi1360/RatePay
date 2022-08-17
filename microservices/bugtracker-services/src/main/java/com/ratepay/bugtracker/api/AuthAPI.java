@@ -26,8 +26,6 @@ public class AuthAPI {
 
     @PostMapping("/login")
     public BaseResponseDTO<?> login(@Valid @RequestBody LoginRequest loginRequest){
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-
         String jwtToken = authServiceImpl.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
         User user = authServiceImpl.loadUserByUsername(loginRequest.getUsername());
         return BaseResponseDTO.ok(new LoginResponse(user.getId(), user.getUsername(), jwtToken, user.getAuthorities()));
