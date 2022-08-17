@@ -113,7 +113,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
             Optional<Project> project = projectRepository.findById(projectId);
             project.ifPresentOrElse(
                     (prj) -> {
-                        if (!prj.getProjectManager().equals(projectManager.get())) {
+                        if (!prj.getProjectManager().getId().equals(projectManager.get().getId())) {
                             throw new EntityNotFoundException("projectManager is not equal to  current user");
                         }
                         Optional<User> developer = userService.findUserByUserIdAsDeveloper(developerId);
@@ -145,7 +145,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         if (currentUser.isPresent()) {
             Optional<Project> project = projectRepository.findById(projectId);
             project.ifPresentOrElse((prj) -> {
-                if (!prj.getProjectManager().equals(currentUser.get())) {
+                if (!prj.getProjectManager().getId().equals(currentUser.get().getId())) {
                     throw new EntityNotFoundException("projectManager is not equal to  current user");
                 }
                 Optional<User> developer = userService.findUserByUserIdAsDeveloper(developerId);
@@ -179,7 +179,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         if (currentUser.isPresent()) {
             Optional<Project> project = projectRepository.findById(projectId);
             if (project.isPresent()) {
-                if (!project.get().getProjectManager().equals(currentUser)) {
+                if (!project.get().getProjectManager().getId().equals(currentUser.get().getId())) {
                     throw new EntityNotFoundException("projectManager is not equal to  current user");
                 }
                 return ticketMapper.toModel(project.get().getTickets());
