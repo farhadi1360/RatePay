@@ -48,7 +48,6 @@ public class AuthServiceImpl implements UserDetailsService {
         }
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
-
         SecurityContextHolder.getContext().setAuthentication(auth);
         return jwtProvider.generateToken(userDetails);
     }

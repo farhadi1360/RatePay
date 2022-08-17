@@ -1,5 +1,7 @@
 package com.ratepay.bugtracker.repository;
-
+/**
+ * Created by Mostafa.Farhadi Email : farhadi.kam@gmail.com.
+ */
 import com.ratepay.client.bugtracker.entities.TicketType;
 import com.ratepay.client.bugtracker.enume.TicketTypeName;
 import com.ratepay.core.repository.BaseSQLRepository;

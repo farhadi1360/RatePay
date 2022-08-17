@@ -22,16 +22,13 @@ import com.ratepay.client.bugtracker.mapper.TicketMapper;
 import com.ratepay.client.bugtracker.mapper.UserMapper;
 import com.ratepay.client.bugtracker.models.ProjectModel;
 import com.ratepay.client.bugtracker.models.TicketModel;
-import com.ratepay.client.bugtracker.models.UserModel;
 import com.ratepay.core.dto.ResponseDto;
 import com.ratepay.core.service.impl.MainServiceSQLModeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 @Service

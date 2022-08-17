@@ -6,10 +6,7 @@ package com.ratepay.client.bugtracker.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ratepay.core.entity.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
+
 public class User extends BaseEntity<Long> implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
