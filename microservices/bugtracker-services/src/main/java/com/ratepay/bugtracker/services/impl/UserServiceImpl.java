@@ -15,7 +15,6 @@ import com.ratepay.client.bugtracker.models.UserModel;
 import com.ratepay.core.dto.ResponseDto;
 import com.ratepay.core.service.impl.MainServiceSQLModeImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -29,13 +28,11 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
     private static final ResponseDto DONE = new ResponseDto(true);
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final TicketService ticketService;
 
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, TicketService ticketService) {
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository) {
         super(userMapper, userRepository);
         this.userMapper = userMapper;
         this.userRepository = userRepository;
-        this.ticketService = ticketService;
     }
 
 
@@ -49,17 +46,14 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
     public ResponseDto deleteUser(Principal principal) throws EntityNotFoundException {
         Optional<User> user = findUserByPrincipal(principal);
         if (user.isPresent()) {
-            if (user.get().getProjectsWorkingOn().size() > 0) {
-                for (Project p : user.get().getProjectsWorkingOn()) {
-                    p.getDevelopers().remove(user);
-                }
-            }
-            if (user.get().getTicketsWorkingOn().size() > 0) {
-                for (Ticket t : user.get().getTicketsWorkingOn()) {
-                    t.setDeveloper(null);
-                    ticketService.save(t);
-                }
-            }
+            user.get().getProjectsWorkingOn().stream().forEach(project -> {
+                project.getDevelopers().stream().forEach(usr->{
+                    project.getDevelopers().remove(user);
+                });
+            });
+            user.get().getTicketsWorkingOn().stream().forEach(ticket -> {
+                ticket.setDeveloper(null);
+            });
             userRepository.delete(user.get());
             log.info("User {} was deleted successfully", user.get().getUsername());
             return DONE;

@@ -7,6 +7,8 @@ import com.ratepay.core.model.BaseModel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
@@ -16,10 +18,14 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProjectModel extends BaseModel {
     Long id;
+    @NotBlank
     String name;
+    @NotBlank
     String code;
     UserModel projectManager;
+    @NotNull
     Set<UserModel> developers;
+
     Set<TicketModel> tickets;
 
 public ProjectModel(String projectName,UserModel projectManager) {

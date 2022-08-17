@@ -5,6 +5,7 @@ package com.ratepay.bugtracker.api;
 
 import com.ratepay.bugtracker.services.TicketService;
 import com.ratepay.client.bugtracker.models.TicketModel;
+import com.ratepay.client.bugtracker.models.TicketRequest;
 import com.ratepay.core.dto.BaseResponseDTO;
 import com.ratepay.core.dto.ResponseDto;
 import com.ratepay.core.rest.impl.BaseRestSqlModeImpl;
@@ -28,13 +29,13 @@ public class TicketAPI extends BaseRestSqlModeImpl<TicketModel, Long> {
 
     @PostMapping("/create")
     @Secured("ROLE_USER")
-    public BaseResponseDTO<?> addTicket(@RequestParam(name = "code") String projectCode,
-                                        @RequestBody @Valid TicketModel ticketModel,
+    public BaseResponseDTO<?> createTicket(@RequestParam(name = "code") String projectCode,
+                                        @RequestBody @Valid TicketRequest ticketRequest,
                                         Principal principal) {
-        ResponseDto result = ticketService.createTicket(projectCode, ticketModel, principal);
+        ResponseDto result = ticketService.createTicket(projectCode, ticketRequest, principal);
         return BaseResponseDTO.ok(result);
     }
-    @PostMapping("/assign-developer/project/{projectId}")
+    @PutMapping("{ticketId}/assign-developer")
     @Secured("ROLE_DEVELOPER")
     public BaseResponseDTO<?> assignTicketToDeveloper(@PathVariable Long ticketId,
                                                      @RequestParam(name = "developerId") Long developerId,
@@ -42,7 +43,7 @@ public class TicketAPI extends BaseRestSqlModeImpl<TicketModel, Long> {
         ResponseDto result = ticketService.assignTicketToDeveloper(ticketId, developerId, principal);
         return BaseResponseDTO.ok(result);
     }
-    @PutMapping("/{ticketId}/remove")
+    @DeleteMapping("/{ticketId}/remove")
     @Secured("ROLE_MANAGER")
     public BaseResponseDTO<?> removeDeveloperFromTicket(@PathVariable Long ticketId,
                                                       @RequestParam(name = "developerId") Long developerId,

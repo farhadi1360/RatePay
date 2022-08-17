@@ -6,11 +6,14 @@ package com.ratepay.bugtracker.services.impl;
 import com.ratepay.bugtracker.exceptions.custom.EntityNotFoundException;
 import com.ratepay.bugtracker.exceptions.custom.IllegalActionException;
 import com.ratepay.bugtracker.repository.ProjectRepository;
+import com.ratepay.bugtracker.repository.TicketRepository;
 import com.ratepay.bugtracker.repository.UserRepository;
 import com.ratepay.bugtracker.services.ProjectService;
 import com.ratepay.bugtracker.services.RoleService;
 import com.ratepay.bugtracker.services.UserService;
+import com.ratepay.bugtracker.utils.ProjectUtils;
 import com.ratepay.client.bugtracker.entities.Project;
+import com.ratepay.client.bugtracker.entities.Ticket;
 import com.ratepay.client.bugtracker.entities.User;
 import com.ratepay.client.bugtracker.enume.RoleName;
 import com.ratepay.client.bugtracker.mapper.ProjectMapper;
@@ -19,8 +22,8 @@ import com.ratepay.client.bugtracker.mapper.TicketMapper;
 import com.ratepay.client.bugtracker.mapper.UserMapper;
 import com.ratepay.client.bugtracker.models.ProjectModel;
 import com.ratepay.client.bugtracker.models.TicketModel;
+import com.ratepay.client.bugtracker.models.UserModel;
 import com.ratepay.core.dto.ResponseDto;
-import com.ratepay.core.exception.GeneralException;
 import com.ratepay.core.service.impl.MainServiceSQLModeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Service
@@ -42,8 +46,9 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
     private final RoleService roleService;
     private final RoleMapper roleMapper;
     private final TicketMapper ticketMapper;
+    private final TicketRepository ticketRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService, UserMapper userMapper, RoleService roleService, RoleMapper roleMapper, UserRepository userRepository,TicketMapper ticketMapper) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService, UserMapper userMapper, RoleService roleService, RoleMapper roleMapper, UserRepository userRepository, TicketMapper ticketMapper,TicketRepository ticketRepository) {
         super(projectMapper, projectRepository);
         this.projectMapper = projectMapper;
         this.projectRepository = projectRepository;
@@ -53,6 +58,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         this.roleMapper = roleMapper;
         this.userRepository = userRepository;
         this.ticketMapper = ticketMapper;
+        this.ticketRepository = ticketRepository;
     }
 
 
@@ -81,7 +87,30 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         }
     }
 
-    public ResponseDto assignDeveloperToProject(Long projectId, Long developerId, Principal principal)throws EntityNotFoundException,IllegalActionException {
+    public ResponseDto editProjectManager(Long projectId,ProjectModel projectModel) throws EntityNotFoundException{
+        Optional<Project> project = projectRepository.findById(projectId);
+        Optional<User> projectManager = userRepository.findById(projectModel.getProjectManager().getId());
+        List<User> newDevelopers = ProjectUtils.getAllDeveloper(projectModel.getDevelopers(),userRepository);
+        List<Ticket> newTicket = ProjectUtils.getAllTicket(projectModel.getTickets(), ticketRepository);
+        project.ifPresentOrElse(
+                (prj)->{
+                    prj.setCode(projectModel.getCode());
+                    prj.setName(projectModel.getName());
+                    projectManager.ifPresentOrElse((newProjectManager)->{
+                        prj.setProjectManager(newProjectManager);
+                        if(newDevelopers.size()>0)  prj.setDevelopers(newDevelopers);
+                        if(newTicket.size()>0) prj.setTickets(newTicket);
+                        projectRepository.save(prj);
+                            },
+                            ()->{throw new EntityNotFoundException("ProjectManager with username " + projectModel.getProjectManager().getUserName() + " not found!");
+                    });
+                },
+                ()->{  throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");}
+        );
+        return DONE;
+    }
+
+    public ResponseDto assignDeveloperToProject(Long projectId, Long developerId, Principal principal) throws EntityNotFoundException, IllegalActionException {
         Optional<User> projectManager = userService.findUserByPrincipal(principal);
         if (projectManager.isPresent()) {
             Optional<Project> project = projectRepository.findById(projectId);
@@ -97,8 +126,8 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                             try {
                                 projectRepository.save(prj);
                                 userRepository.save(dev);
-                                log.info("{}, Project was successfully assigned to {}",prj.getName(),dev.getUsername());
-                            }catch (Exception e){
+                                log.info("{}, Project was successfully assigned to {}", prj.getName(), dev.getUsername());
+                            } catch (Exception e) {
                                 log.error(e.getMessage());
                                 throw new IllegalActionException("transaction does not doing");
                             }
@@ -130,8 +159,8 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                     developer.get().removeProjectWorkingOn(prj);
                     try {
                         projectRepository.save(prj);
-                        log.info("{}, as Developer  was successfully removed from  {} project",developer.get().getUsername(),prj.getName());
-                    }catch (Exception e){
+                        log.info("{}, as Developer  was successfully removed from  {} project", developer.get().getUsername(), prj.getName());
+                    } catch (Exception e) {
                         log.error(e.getMessage());
                         throw new IllegalActionException("transaction does not doing");
                     }
@@ -148,24 +177,24 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
         return DONE;
     }
 
-    public List<TicketModel> getAllTicketsByProjectId(Long projectId, Principal principal)throws EntityNotFoundException{
+    public List<TicketModel> getAllTicketsByProjectId(Long projectId, Principal principal) throws EntityNotFoundException {
         Optional<User> currentUser = userService.findUserByPrincipal(principal);
         if (currentUser.isPresent()) {
             Optional<Project> project = projectRepository.findById(projectId);
-            if(project.isPresent()){
-                if(!project.get().getProjectManager().equals(currentUser)){
+            if (project.isPresent()) {
+                if (!project.get().getProjectManager().equals(currentUser)) {
                     throw new EntityNotFoundException("projectManager is not equal to  current user");
                 }
                 return ticketMapper.toModel(project.get().getTickets());
-            }else{
+            } else {
                 throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");
             }
-        }else {
+        } else {
             throw new EntityNotFoundException("currentUser base on principal of request is not found!");
         }
     }
 
-    public Optional<ProjectModel> findByCode(String code) throws EntityNotFoundException{
+    public Optional<ProjectModel> findByCode(String code) throws EntityNotFoundException {
         return Optional.of(projectMapper.toModel(projectRepository.findByCode(code).orElseThrow(
                 () -> new EntityNotFoundException("Project with code " + code + " doesn't exist!")
         )));

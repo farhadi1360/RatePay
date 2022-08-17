@@ -4,11 +4,14 @@ package com.ratepay.client.bugtracker.models;
  * @email  farhadi.kam@gmail.com
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ratepay.client.bugtracker.entities.TicketPriority;
 import com.ratepay.core.model.BaseModel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
@@ -19,11 +22,15 @@ import java.sql.Timestamp;
 public class TicketModel extends BaseModel {
 
     Long id;
+    @NotBlank
     String title;
     String description;
+    @JsonIgnore
     Timestamp timestamp;
     UserModel author;
+    @NotNull
     TicketTypeModel ticketType;
+    @NotNull
     TicketPriorityModel ticketPriority;
     ProjectModel project;
     UserModel developer;

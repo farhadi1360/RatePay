@@ -20,6 +20,8 @@ import java.util.Optional;
 public interface ProjectService<M, ID extends Serializable> extends MainServiceSQLMode<M, ID> {
     ResponseDto createProject(ProjectModel projectModel, Principal principal) throws EntityNotFoundException;
 
+    ResponseDto editProjectManager(Long projectId,ProjectModel projectModel) throws EntityNotFoundException;
+
     ResponseDto assignDeveloperToProject(Long projectId, Long developerId, Principal principal) throws EntityNotFoundException, IllegalActionException;
 
     ResponseDto removeDeveloperFromProject(Long projectId, Long developerId, Principal principal) throws EntityNotFoundException;

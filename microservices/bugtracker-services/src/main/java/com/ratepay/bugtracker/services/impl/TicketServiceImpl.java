@@ -5,9 +5,7 @@ package com.ratepay.bugtracker.services.impl;
 
 import com.ratepay.bugtracker.exceptions.custom.EntityNotFoundException;
 import com.ratepay.bugtracker.exceptions.custom.IllegalActionException;
-import com.ratepay.bugtracker.repository.TicketPriorityRepository;
-import com.ratepay.bugtracker.repository.TicketRepository;
-import com.ratepay.bugtracker.repository.TicketTypeRepository;
+import com.ratepay.bugtracker.repository.*;
 import com.ratepay.bugtracker.services.ProjectService;
 import com.ratepay.bugtracker.services.TicketService;
 import com.ratepay.bugtracker.services.UserService;
@@ -18,6 +16,7 @@ import com.ratepay.client.bugtracker.mapper.ProjectMapper;
 import com.ratepay.client.bugtracker.mapper.TicketMapper;
 import com.ratepay.client.bugtracker.models.ProjectModel;
 import com.ratepay.client.bugtracker.models.TicketModel;
+import com.ratepay.client.bugtracker.models.TicketRequest;
 import com.ratepay.core.dto.ResponseDto;
 import com.ratepay.core.service.impl.MainServiceSQLModeImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +35,12 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
     private final TicketPriorityRepository ticketPriorityRepository;
     private final UserService userService;
     private final ProjectService projectService;
+    private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
+    private final UserRepository userRepository;
     private static final ResponseDto DONE = new ResponseDto(true);
 
-    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper, UserService userService, ProjectService projectService, ProjectMapper projectMapper, TicketTypeRepository ticketTypeRepository, TicketPriorityRepository ticketPriorityRepository) {
+    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper, UserService userService, ProjectService projectService, ProjectMapper projectMapper, TicketTypeRepository ticketTypeRepository, TicketPriorityRepository ticketPriorityRepository,ProjectRepository projectRepository,UserRepository userRepository) {
         super(ticketMapper, ticketRepository);
         this.ticketMapper = ticketMapper;
         this.ticketRepository = ticketRepository;
@@ -48,19 +49,20 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
         this.projectMapper = projectMapper;
         this.ticketTypeRepository = ticketTypeRepository;
         this.ticketPriorityRepository = ticketPriorityRepository;
+        this.projectRepository = projectRepository;
+        this.userRepository=userRepository;
     }
 
-    public ResponseDto createTicket(String projectCode, TicketModel ticketRequest, Principal principal) throws EntityNotFoundException {
+    public ResponseDto createTicket(String projectCode, TicketRequest ticketRequest, Principal principal) throws EntityNotFoundException {
         Optional<User> currentUser = userService.findUserByPrincipal(principal);
         if (currentUser.isPresent()) {
-            Optional<ProjectModel> project = projectService.findByCode(projectCode);
+            Optional<Project> project = projectRepository.findByCode(projectCode);
             project.ifPresent(prj -> {
-                Ticket ticket = getTicketFromTicketModel(ticketRequest, currentUser.get(), projectMapper.toEntity(prj));
-                Project projectEntity = projectMapper.toEntity(prj);
-                projectEntity.addTicket(ticket);
+                Ticket ticket = getTicketFromTicketModel(ticketRequest, currentUser.get(),prj);
+                prj.addTicket(ticket);
                 try {
                     ticketRepository.save(ticket);
-                    projectService.save(projectEntity);
+                    projectRepository.save(prj);
                     log.info("Ticket with name of {} was successfully created", ticket.getTitle());
                 } catch (Exception e) {
                     log.error(e.getMessage());
@@ -89,7 +91,7 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
                             dev.addTicketsWorkingOn(tick);
                             try {
                                 ticketRepository.save(tick);
-                                userService.save(dev);
+                                userRepository.save(dev);
                                 log.info("the {} Ticket successfully assigned to {} as developer ", tick.getTitle(), dev.getUsername());
                             } catch (Exception e) {
                                 log.error(e.getMessage());
@@ -149,16 +151,16 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
         return DONE;
     }
 
-    private Ticket getTicketFromTicketModel(TicketModel ticketModel, User author, Project project) throws EntityNotFoundException {
+    private Ticket getTicketFromTicketModel(TicketRequest ticketModel, User author, Project project) throws EntityNotFoundException {
         TicketTypeName typeName;
         try {
-            typeName = TicketTypeName.valueOf(ticketModel.getTicketType().getType());
+            typeName = TicketTypeName.valueOf(ticketModel.getType());
         } catch (IllegalArgumentException exception) {
             throw new EntityNotFoundException("Invalid ticket type");
         }
         TicketPriorityName priorityName;
         try {
-            priorityName = TicketPriorityName.valueOf(ticketModel.getTicketPriority().getPriority().name().toUpperCase());
+            priorityName = TicketPriorityName.valueOf(ticketModel.getPriority().toUpperCase());
         } catch (IllegalArgumentException exception) {
             throw new EntityNotFoundException("Invalid ticket priority");
         }

@@ -41,10 +41,17 @@ public class ProjectAPI extends BaseRestSqlModeImpl<ProjectModel, Long> {
         return BaseResponseDTO.ok(result);
     }
 
+    @PutMapping("/{projectId}")
+    @Secured("ROLE_MANAGER")
+    public BaseResponseDTO<?> editProject(@PathVariable Long projectId,@Valid @RequestBody ProjectModel projectRequest) {
+        ResponseDto result = projectService.editProjectManager(projectId,projectRequest);
+        return BaseResponseDTO.ok(result);
+    }
+
     @PutMapping("/{projectId}/assign-developer")
     @Secured("ROLE_MANAGER")
     public BaseResponseDTO<?> assignDeveloperToProject(@PathVariable Long projectId,
-                                                       @RequestParam(name = "id") Long developerId,
+                                                       @RequestParam(name = "developerId") Long developerId,
                                                        Principal principal) {
         ResponseDto result = projectService.assignDeveloperToProject(projectId, developerId, principal);
         return BaseResponseDTO.ok(result);
