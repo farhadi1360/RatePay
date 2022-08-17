@@ -14,7 +14,6 @@ import com.ratepay.client.bugtracker.enume.TicketPriorityName;
 import com.ratepay.client.bugtracker.enume.TicketTypeName;
 import com.ratepay.client.bugtracker.mapper.ProjectMapper;
 import com.ratepay.client.bugtracker.mapper.TicketMapper;
-import com.ratepay.client.bugtracker.models.ProjectModel;
 import com.ratepay.client.bugtracker.models.TicketModel;
 import com.ratepay.client.bugtracker.models.TicketRequest;
 import com.ratepay.core.dto.ResponseDto;
@@ -40,7 +39,7 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
     private final UserRepository userRepository;
     private static final ResponseDto DONE = new ResponseDto(true);
 
-    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper, UserService userService, ProjectService projectService, ProjectMapper projectMapper, TicketTypeRepository ticketTypeRepository, TicketPriorityRepository ticketPriorityRepository,ProjectRepository projectRepository,UserRepository userRepository) {
+    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper, UserService userService, ProjectService projectService, ProjectMapper projectMapper, TicketTypeRepository ticketTypeRepository, TicketPriorityRepository ticketPriorityRepository, ProjectRepository projectRepository, UserRepository userRepository) {
         super(ticketMapper, ticketRepository);
         this.ticketMapper = ticketMapper;
         this.ticketRepository = ticketRepository;
@@ -50,7 +49,7 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
         this.ticketTypeRepository = ticketTypeRepository;
         this.ticketPriorityRepository = ticketPriorityRepository;
         this.projectRepository = projectRepository;
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
     }
 
     public ResponseDto createTicket(String projectCode, TicketRequest ticketRequest, Principal principal) throws EntityNotFoundException {
@@ -58,7 +57,7 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
         if (currentUser.isPresent()) {
             Optional<Project> project = projectRepository.findByCode(projectCode);
             project.ifPresent(prj -> {
-                Ticket ticket = getTicketFromTicketModel(ticketRequest, currentUser.get(),prj);
+                Ticket ticket = getTicketFromTicketModel(ticketRequest, currentUser.get(), prj);
                 prj.addTicket(ticket);
                 try {
                     ticketRepository.save(ticket);
@@ -85,6 +84,7 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
                         Project project = tick.getProject();
                         developer.ifPresentOrElse((dev) -> {
                             if (!dev.getProjectsWorkingOn().contains(project)) {
+                                log.error("This developer isn't assigned to this project");
                                 throw new IllegalActionException("This developer isn't assigned to this project");
                             }
                             tick.setDeveloper(dev);
@@ -97,8 +97,8 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
                                 log.error(e.getMessage());
                                 throw new IllegalActionException("transaction does not doing");
                             }
-
                         }, () -> {
+                            log.error("Developer with id {} doesn't exist", developerId);
                             throw new EntityNotFoundException("Developer with id " + developerId + " doesn't exist");
                         });
                     },
@@ -121,10 +121,12 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
             ticket.ifPresentOrElse((tick) -> {
                         Project project = tick.getProject();
                         if (!project.getProjectManager().equals(projectManager)) {
+                            log.error("projectManager is not equal to  current user");
                             throw new EntityNotFoundException("projectManager is not equal to  current user");
                         }
                         developer.ifPresentOrElse((dev) -> {
                             if (!tick.getDeveloper().equals(dev)) {
+                                log.error("This developer is not assigned to this ticket!");
                                 throw new IllegalActionException("This developer is not assigned to this ticket!");
                             }
                             dev.removeTicketsWorkingOn(tick);
@@ -139,13 +141,16 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
                             }
 
                         }, () -> {
+                            log.error("Developer with id {}  not found!", developerId);
                             throw new EntityNotFoundException("Developer with id " + developerId + " not found!");
                         });
                     }, () -> {
+                        log.error("Ticket with id {}  doesn't exist", ticketId);
                         throw new EntityNotFoundException("Ticket with id " + ticketId + " doesn't exist");
                     }
             );
         } else {
+            log.error("ProjectManager base on principal of request is not found!");
             throw new EntityNotFoundException("ProjectManager base on principal of request is not found!");
         }
         return DONE;
@@ -156,12 +161,14 @@ public class TicketServiceImpl extends MainServiceSQLModeImpl<TicketModel, Ticke
         try {
             typeName = TicketTypeName.valueOf(ticketModel.getType());
         } catch (IllegalArgumentException exception) {
+            log.error("Invalid ticket type");
             throw new EntityNotFoundException("Invalid ticket type");
         }
         TicketPriorityName priorityName;
         try {
             priorityName = TicketPriorityName.valueOf(ticketModel.getPriority().toUpperCase());
         } catch (IllegalArgumentException exception) {
+            log.error("Invalid ticket priority");
             throw new EntityNotFoundException("Invalid ticket priority");
         }
         TicketType ticketType = ticketTypeRepository.findByType(typeName)

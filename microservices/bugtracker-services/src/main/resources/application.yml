@@ -1,15 +1,17 @@
 spring:
-
-  application:
+  application: bugtracker
+  version: @project.version@
   messages:
     encoding: UTF-8
     basename: i18n/messages
+  tomcat:
+    uri-encoding: UTF-8
+
   datasource:
       type: com.zaxxer.hikari.HikariDataSource
-      url: jdbc:mysql://localhost:3306/bugtracker?useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
-      name:
-      username: root
-      password: root
+      url: ${DB_URL:jdbc:mysql://localhost:3306/bugtracker?useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false}
+      username: ${DB_USER:root}
+      password: ${DB_USER:root}
       hikari:
         data-source-properties:
           cachePrepStmts: true
@@ -25,25 +27,17 @@ spring:
           implicit-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
         database: MYSQL
-        show-sql: true
-
-
-
+        show-sql: false
   sql:
     init:
       data-locations: classpath*:import.sql
       continue-on-error: true
-
-springdoc:
-  api-docs:
-    enabled: on
-  swagger-ui:
-#    path: /ratepay-swagger-ui
-    operations-sorter: method
-
 app:
   jwt:
     secret: F$gQb+D$wjV&EsV}(;!^{|[GM^9Y6'33n'FG^-!tF&?Z[P{Wl{~m*`wp7XSd>Fa
     expirationms: 604800000
 server:
   port: 2000
+  error:
+    include-message: always
+    include-binding-errors: always

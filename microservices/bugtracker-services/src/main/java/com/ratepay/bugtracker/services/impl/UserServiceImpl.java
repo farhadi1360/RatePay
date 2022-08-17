@@ -47,7 +47,7 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
         Optional<User> user = findUserByPrincipal(principal);
         if (user.isPresent()) {
             user.get().getProjectsWorkingOn().stream().forEach(project -> {
-                project.getDevelopers().stream().forEach(usr->{
+                project.getDevelopers().stream().forEach(usr -> {
                     project.getDevelopers().remove(user);
                 });
             });
@@ -58,7 +58,8 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
             log.info("User {} was deleted successfully", user.get().getUsername());
             return DONE;
         } else {
-            throw  new EntityNotFoundException("Username " + principal.getName() + " not found!");
+            log.error("Username {} not found!", principal.getName());
+            throw new EntityNotFoundException("Username " + principal.getName() + " not found!");
         }
 
     }
@@ -66,9 +67,10 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
 
     public Set<Project> getAllProjectsByDeveloper(Principal principal) throws EntityNotFoundException {
         Optional<User> userAsDeveloper = findUserByPrincipal(principal);
-       if(userAsDeveloper.isPresent()){
+        if (userAsDeveloper.isPresent()) {
             return userAsDeveloper.get().getProjectsWorkingOn();
-        }else{
+        } else {
+            log.error("Username {} not found!", principal.getName());
             throw new EntityNotFoundException("Username " + principal.getName() + " not found!");
         }
 
@@ -77,23 +79,25 @@ public class UserServiceImpl extends MainServiceSQLModeImpl<UserModel, User, Lon
     @Override
     public Set<Project> getAllProjectsByDeveloperId(Long developerId) throws EntityNotFoundException {
         Optional<User> userAsDeveloper = findUserByUserIdAsDeveloper(developerId);
-        if(userAsDeveloper.isPresent()){
+        if (userAsDeveloper.isPresent()) {
             return userAsDeveloper.get().getProjectsWorkingOn();
-        }else{
+        } else {
+            log.error("developerId {} not found!", developerId);
             throw new EntityNotFoundException("developerId  " + developerId + " not found!");
         }
     }
 
     public Set<Ticket> getAllTicketsForDeveloper(Long developerId) throws EntityNotFoundException {
         Optional<User> userAsDeveloper = findUserByUserIdAsDeveloper(developerId);
-        if(userAsDeveloper.isPresent()){
+        if (userAsDeveloper.isPresent()) {
             return userAsDeveloper.get().getTicketsWorkingOn();
-        }else{
+        } else {
+            log.error("developerId {} not found!", developerId);
             throw new EntityNotFoundException("developerId  " + developerId + " not found!");
         }
     }
 
-    public Optional<User> findUserByUserIdAsDeveloper(Long developerId)throws EntityNotFoundException {
+    public Optional<User> findUserByUserIdAsDeveloper(Long developerId) throws EntityNotFoundException {
         return Optional.ofNullable(userRepository.findById(developerId).orElseThrow(() -> new EntityNotFoundException("developerId " + developerId + " not found!")));
     }
 

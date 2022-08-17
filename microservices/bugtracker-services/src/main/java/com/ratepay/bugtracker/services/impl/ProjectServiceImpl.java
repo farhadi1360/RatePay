@@ -26,6 +26,7 @@ import com.ratepay.core.dto.ResponseDto;
 import com.ratepay.core.service.impl.MainServiceSQLModeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
     private final TicketMapper ticketMapper;
     private final TicketRepository ticketRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService, UserMapper userMapper, RoleService roleService, RoleMapper roleMapper, UserRepository userRepository, TicketMapper ticketMapper,TicketRepository ticketRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService, UserMapper userMapper, RoleService roleService, RoleMapper roleMapper, UserRepository userRepository, TicketMapper ticketMapper, TicketRepository ticketRepository) {
         super(projectMapper, projectRepository);
         this.projectMapper = projectMapper;
         this.projectRepository = projectRepository;
@@ -71,38 +72,45 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                 });
             });
             projectRepository.save(project);
-            log.info("Project {}, by {}  was successfully saved", project.getName(), projectManager.get().getUsername());
+            log.info("Project {}, by {}  was successfully saved", project.getName());
             projectManager.get().addProjects(project);
             projectManager.get().addRole(roleMapper.toEntity(roleService.findByRoleName(RoleName.ROLE_MANAGER)));
             projectManager.get().addRole(roleMapper.toEntity(roleService.findByRoleName(RoleName.ROLE_DEVELOPER)));
             projectManager.get().addProjects(project);
             userRepository.save(projectManager.get());
-            log.info("ProjectManager  {}   was successfully saved information about project", projectManager.get().getUsername(), projectManager.get().getUsername());
+            log.info("{} as a project manager   was successfully saved ", projectManager.get().getUsername());
             return DONE;
         } else {
+            log.error("ProjectManager base on principal of request  not found!");
             throw new EntityNotFoundException("ProjectManager base on principal of request  not found!");
         }
     }
 
-    public ResponseDto editProjectManager(Long projectId,ProjectModel projectModel) throws EntityNotFoundException{
+    public ResponseDto editProjectManager(Long projectId, ProjectModel projectModel) throws EntityNotFoundException {
         Optional<Project> project = projectRepository.findById(projectId);
         Optional<User> projectManager = userRepository.findById(projectModel.getProjectManager().getId());
-        List<User> newDevelopers = ProjectUtils.getAllDeveloper(projectModel.getDevelopers(),userRepository);
+        List<User> newDevelopers = ProjectUtils.getAllDeveloper(projectModel.getDevelopers(), userRepository);
         List<Ticket> newTicket = ProjectUtils.getAllTicket(projectModel.getTickets(), ticketRepository);
         project.ifPresentOrElse(
-                (prj)->{
+                (prj) -> {
                     prj.setCode(projectModel.getCode());
                     prj.setName(projectModel.getName());
-                    projectManager.ifPresentOrElse((newProjectManager)->{
-                        prj.setProjectManager(newProjectManager);
-                        if(newDevelopers.size()>0)  prj.setDevelopers(newDevelopers);
-                        if(newTicket.size()>0) prj.setTickets(newTicket);
-                        projectRepository.save(prj);
+                    projectManager.ifPresentOrElse((newProjectManager) -> {
+                                prj.setProjectManager(newProjectManager);
+                                if (newDevelopers.size() > 0) prj.setDevelopers(newDevelopers);
+                                if (newTicket.size() > 0) prj.setTickets(newTicket);
+                                projectRepository.save(prj);
+                                log.info("{}  project   was successfully updated ", project.get().getName());
                             },
-                            ()->{throw new EntityNotFoundException("ProjectManager with username " + projectModel.getProjectManager().getUserName() + " not found!");
-                    });
+                            () -> {
+                                log.error("ProjectManager with username {} not found!", projectModel.getProjectManager().getUserName());
+                                throw new EntityNotFoundException("ProjectManager with username " + projectModel.getProjectManager().getUserName() + " not found!");
+                            });
                 },
-                ()->{  throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");}
+                () -> {
+                    log.error("Project with id {} doesn't exist", projectId);
+                    throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");
+                }
         );
         return DONE;
     }
@@ -114,6 +122,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
             project.ifPresentOrElse(
                     (prj) -> {
                         if (!prj.getProjectManager().getId().equals(projectManager.get().getId())) {
+                            log.error("projectManager is not equal to  current user");
                             throw new EntityNotFoundException("projectManager is not equal to  current user");
                         }
                         Optional<User> developer = userService.findUserByUserIdAsDeveloper(developerId);
@@ -132,6 +141,7 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                         });
                     },
                     () -> {
+                        log.error("Project with id {} doesn't exist", projectId);
                         throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");
                     });
         } else {
@@ -146,11 +156,13 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
             Optional<Project> project = projectRepository.findById(projectId);
             project.ifPresentOrElse((prj) -> {
                 if (!prj.getProjectManager().getId().equals(currentUser.get().getId())) {
+                    log.error("projectManager is not equal to  current user");
                     throw new EntityNotFoundException("projectManager is not equal to  current user");
                 }
                 Optional<User> developer = userService.findUserByUserIdAsDeveloper(developerId);
                 if (developer.isPresent()) {
                     if ((developer.get().getId().equals(currentUser.get().getId()))) {
+                        log.error("You can't remove yourself from your project!");
                         throw new IllegalActionException("You can't remove yourself from your project!");
                     }
                     developer.get().removeProjectWorkingOn(prj);
@@ -162,13 +174,16 @@ public class ProjectServiceImpl extends MainServiceSQLModeImpl<ProjectModel, Pro
                         throw new IllegalActionException("transaction does not doing");
                     }
                 } else {
+                    log.error("Developer with id {} not found!", developerId);
                     throw new EntityNotFoundException("Developer with id " + developerId + " not found!");
                 }
             }, () -> {
+                log.error("Project with id {} doesn't exist", projectId);
                 throw new EntityNotFoundException("Project with id " + projectId + " doesn't exist");
             });
 
         } else {
+            log.error("currentUser base on principal of request is not found!");
             throw new EntityNotFoundException("currentUser base on principal of request is not found!");
         }
         return DONE;

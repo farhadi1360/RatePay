@@ -13,6 +13,7 @@ import com.ratepay.client.bugtracker.mapper.RoleMapper;
 import com.ratepay.client.bugtracker.models.RegisterRequest;
 import com.ratepay.core.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
@@ -63,6 +65,7 @@ public class AuthServiceImpl implements UserDetailsService {
             user.getRoles().add(roleMapper.toEntity(roleService.findByRoleName(RoleName.valueOf(role.toUpperCase()))));
         });
         userRepository.save(user);
+        log.info("{} was created as user of bugtracker system",registerRequest.getUsername());
         return DONE;
     }
 
@@ -75,7 +78,9 @@ public class AuthServiceImpl implements UserDetailsService {
                 userSearched.get().getRoles().add(roleMapper.toEntity(roleService.findByRoleName(RoleName.valueOf(role.toUpperCase()))));
             });
             userRepository.save(userSearched.get());
+            log.info("{} was updated ",registerRequest.getUsername());
         } else {
+            log.error("currentUser base on principal of request is not found!");
             throw new EntityNotFoundException("currentUser base on principal of request is not found!");
         }
         return DONE;
